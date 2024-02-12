@@ -3,14 +3,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../model/user';
 import dotenv from 'dotenv';
-import { emailValidate, passwordRegex } from '../utils/helper';
+import { emailValidate, generateRandomString, passwordRegex } from '../utils/helper';
 dotenv.config();
 
 const jwtSecret = process.env.jwtSecretKey || 'thisisprivate';
 
 
 // Post request for creating a new user
-export const signup = async (req: Request, res: Response) => {
+export const signUp = async (req: Request, res: Response) => {
   try {
     const { userName, email, password } = req.body;
 
@@ -117,15 +117,57 @@ export const getUser = async (req: Request, res: Response) => {
       return;
     }
 
-    const foundedUser = {
-      userName: getUser.userName,
-      email: getUser.email,
-    }
-    
-    res.status(200).json({ message: 'User retrieved successfully', foundedUser });
+    const { _id, password, ...responseData } = getUser.toObject();
+
+    res.status(200).json({ message: 'User retrieved successfully', data: responseData });
   } catch (error) {
     console.error('Error in get User details');
     res.status(500).json({ message: 'Error in get User details', error });
     return;
   }
 }
+
+
+
+// set the default api and secrete key length
+const apiKeyLength: number = 32;
+const secreteKeyLength: number = 32;
+
+
+// Patch request for updating the user document for new details
+export const CreateAppSecreteAndKey = async (req: Request, res: Response) => {
+  try {
+    const user = req.user?.userId;
+    const foundedUser = await User.findOne({ _id: user });
+    if (!foundedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { projectName, whitelistedURLs, callbackURL, redirectURL } = req.body;
+    if (!whitelistedURLs || !Array.isArray(whitelistedURLs)) {
+      return res.status(400).json({ message: 'Invalid whitelistedURLs format' });
+    }
+
+    const apiKey = generateRandomString(apiKeyLength);
+    const secreteKey = generateRandomString(secreteKeyLength);
+
+    const newProject = {
+      projectName,
+      apiKey,
+      secreteKey,
+      callbackURL,
+      redirectURL,
+      whitelistedURLs,
+    };
+
+    foundedUser.projects.push(newProject);
+    await foundedUser.save();
+
+    const { _id, password, ...responseData } = foundedUser.toObject();
+
+    res.status(200).json({ message: 'Updated AppSecrete', updatedAppData: responseData });
+  } catch (error) {
+    console.error('Error in updating AppSecrete:', error);
+    res.status(500).json({ message: 'Error in updating AppSecrete', error });
+  }
+};
