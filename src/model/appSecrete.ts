@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 export interface IAppSecrete extends Document {
-    // userID: ObjectId;
+    userID: ObjectId;
     apiKey: string;
-    secretKey: string;
+    secreteKey: string;
     callbackURL: string;
     redirectURL: string;
 }
@@ -11,7 +11,7 @@ export interface IAppSecrete extends Document {
 const AppSecreteSchema: Schema = new Schema({
     userID: { type: mongoose.Schema.Types.ObjectId, ref: 'User', require: 'false' },
     apiKey: { type: String },
-    secretKey: { type: String },
+    secreteKey: { type: String },
     callbackURL: { type: String, required: true },
     redirectURL: { type: String, required: true },
 });

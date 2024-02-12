@@ -31,6 +31,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
           success: false,
         });
       }
+
       const token = authHeader.split(' ')[1];
       if (!token) {
         return res.status(401).json({
@@ -38,6 +39,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
           success: false,
         });
       }
+      
       const decodedToken = jwt.verify(token, jwtSecret)
       if (!isUserType(decodedToken)) {
         return res.status(401).json({
