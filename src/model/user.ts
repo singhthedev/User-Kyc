@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProject {
+  _id?: string;
   projectName: string;
   apiKey: string;
   secreteKey: string;
