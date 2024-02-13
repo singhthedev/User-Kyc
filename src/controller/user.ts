@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../model/user';
-import dotenv from 'dotenv';
+import { environmentConfig } from '../config/envConfig';
 import { emailValidate, generateRandomString, passwordRegex } from '../utils/helper';
-dotenv.config();
 
-const jwtSecret = process.env.jwtSecretKey || 'thisisprivate';
+
+const jwtSecret = environmentConfig.JWT_SECRET || 'thisisprivate';
 
 // set the default api and secrete key length
 const apiKeyLength: number = 32;
@@ -96,7 +96,7 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = jwt.sign({ userId: user._id, email: user.email, }, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id, email: user.email, projects: user.projects }, jwtSecret, { expiresIn: '1h' });
 
     let userData = { token: token };
 

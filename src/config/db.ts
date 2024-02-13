@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { environmentConfig } from "./envConfig";
 
-const dbUrl: string = process.env.dbUrl || '';
+
+const dbUrl: string = environmentConfig.DB_URL || '';
 mongoose.connect(dbUrl)
     .then(() => {
-        console.log(`Database connected successfully...🔥`);
+        console.log(`Database connected...🔥`);
     })
     .catch((err) => {
-        console.log(err, `Database not connected...😵`);
+        console.log(`Database not connected...😵`,err);
     });
