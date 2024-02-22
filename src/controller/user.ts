@@ -134,7 +134,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 
 // Patch request for updating the user document for new details
-export const CreateAppSecreteAndKey = async (req: Request, res: Response) => {
+export const CreateProject = async (req: Request, res: Response) => {
   try {
     const user = req.user?.userId;
     const foundedUser = await User.findOne({ _id: user });
@@ -149,8 +149,22 @@ export const CreateAppSecreteAndKey = async (req: Request, res: Response) => {
       return;
     }
 
-    const apiKey = generateRandomString(apiKeyLength);
-    const secreteKey = generateRandomString(secreteKeyLength);
+    let apiKey = '';
+    let secreteKey = '';
+    let isUnique = false;
+
+    while (!isUnique) {
+      apiKey = generateRandomString(apiKeyLength);
+      secreteKey = generateRandomString(secreteKeyLength);
+
+      const existingProject = foundedUser.projects.find(project =>
+        project.apiKey === apiKey || project.secreteKey === secreteKey
+      );
+
+      if (!existingProject) {
+        isUnique = true;
+      }
+    }
 
     const newProject = {
       projectName,
@@ -166,14 +180,13 @@ export const CreateAppSecreteAndKey = async (req: Request, res: Response) => {
 
     const { _id, password, ...responseData } = foundedUser.toObject();
 
-    res.status(200).json({ message: 'Updated AppSecrete', updatedAppData: responseData });
-    return;
+    res.status(200).json({ message: 'Updated AppSecret', updatedAppData: responseData });
   } catch (error) {
-    console.error('Error in updating AppSecrete:', error);
-    res.status(500).json({ message: 'Error in updating AppSecrete', error });
-    return;
+    console.error('Error in updating AppSecret:', error);
+    res.status(500).json({ message: 'Error in updating AppSecret', error });
   }
 };
+
 
 
 // Patch api for regenerate the api key and secrete key
