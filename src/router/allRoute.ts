@@ -1,17 +1,20 @@
 import express from 'express';
-import { signup, login } from '../controller/user';
-import { AppSecreteAndKey } from '../controller/appSecrete';
 import { verifyToken } from '../middleware/authToken';
+import { signUp, login, getUser, CreateProject, regenerateKeys, updateAppSecrete, deleteAppSecrete } from '../controller/user';
 
 
 
 const router = express.Router();
 
 
-router.post('/signup', signup);
+// Auth routes
+router.post('/signup', signUp);
 router.post('/login', login);
+router.get('/user', verifyToken, getUser);
+router.post('/user', verifyToken, CreateProject)
+router.put('/user/:projectId/:projectName', verifyToken, regenerateKeys);
+router.patch('/user/:projectId/:projectName', verifyToken, updateAppSecrete);
+router.delete('/user/:projectId/:projectName', verifyToken, deleteAppSecrete);
 
-
-router.post('/appSecret', verifyToken, AppSecreteAndKey)
 
 export default router;

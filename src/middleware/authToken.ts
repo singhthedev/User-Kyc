@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-dotenv.config();
+import { environmentConfig } from '../config/envConfig';
 
-const jwtSecret = process.env.jwtSecretKey || 'thisisprivate';
+
+const jwtSecret = environmentConfig.JWT_SECRET || 'thisisprivate';
 
 export interface UserType {
+  projects: any;
   userId: string;
 }
 
@@ -31,6 +32,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
           success: false,
         });
       }
+
       const token = authHeader.split(' ')[1];
       if (!token) {
         return res.status(401).json({
@@ -38,6 +40,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
           success: false,
         });
       }
+      
       const decodedToken = jwt.verify(token, jwtSecret)
       if (!isUserType(decodedToken)) {
         return res.status(401).json({
@@ -50,7 +53,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 
     }
   } catch (error) {
-    console.error('Error in verifying token');
+    console.error('Error in verifying token', error);
     res.status(500).json({ message: 'Error in verifying token', error });
     return;
   }
